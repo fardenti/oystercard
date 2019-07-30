@@ -7,6 +7,19 @@ describe Oystercard do
   it 'has top up functionality' do
     expect(subject).to respond_to(:top_up)
   end
+  it 'starts off with in_journey being false' do
+    expect(subject.in_journey).to eq false
+  end
+
+  it 'when card touched in, journey starts' do
+    subject.touch_in
+    expect(subject).to be_in_journey
+  end
+  it 'when card touched out, journey ends' do
+    subject.touch_in
+    subject.touch_out
+    expect(subject).not_to be_in_journey
+  end
 
   describe '#top_up' do
     it 'top up can receive amount' do
@@ -29,4 +42,5 @@ describe Oystercard do
       expect{subject.deduct(5)}.to change {subject.balance}.by -5
     end
   end
+
 end
