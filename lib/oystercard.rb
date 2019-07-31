@@ -1,12 +1,13 @@
 class Oystercard
 
-  attr_reader :balance, :entry_station
+  attr_reader :balance, :entry_station, :journey_history, :current_journey
   MAX_VALUE = 90
   MIN_VALUE = 1
   FARE_AMOUNT = 1
 
   def initialize
     @balance = 0
+    @journey_history = []
   end
 
   def top_up(amount)
@@ -23,9 +24,11 @@ class Oystercard
     @entry_station = station
   end
   
-  def touch_out
+  def touch_out(station)
     fail 'you havent started your journey yet, please touch in card to start journey' unless in_journey?
     deduct(FARE_AMOUNT)
+    @current_journey = {:entry => @entry_station, :exit => station}
+    @journey_history << @current_journey
     @entry_station = nil
   end
 
