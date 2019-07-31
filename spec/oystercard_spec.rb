@@ -1,35 +1,9 @@
 require "oystercard"
 
 describe Oystercard do
-  it 'has balance functionality' do
-    expect(subject).to respond_to :balance
-  end
-  it 'has a balance of nil' do
-    expect(subject.balance).to eq 0
-  end
-  it 'has top up functionality' do
-    expect(subject).to respond_to(:top_up)
-  end
-  it 'has deduct functionality' do
-    expect(subject).to respond_to :deduct
-  end
-  it 'has a "in journey" status' do
-    expect(subject).to respond_to :in_journey
-  end
-  it 'has in journey functionality' do
-    expect(subject).to respond_to :in_journey?
-  end
-  it 'starts off with in_journey being false' do
-    expect(subject.in_journey).to eq false
-  end
-  it 'has in touch in functionality' do
-    expect(subject).to respond_to :touch_in
-  end
-  it 'has in touch out functionality' do
-    expect(subject).to respond_to :touch_out
-  end
 
   context '#journey status' do
+
     describe '#touch_in' do
       it 'when card touched in, journey starts' do
         subject.top_up(5)
@@ -51,6 +25,7 @@ describe Oystercard do
         expect{subject.touch_out}.to raise_error 'you havent started your journey yet, please touch in card to start journey'
       end
     end
+
   end
 
   describe '#top_up' do
@@ -67,13 +42,14 @@ describe Oystercard do
     end
   end
 
-  describe '#deduct' do
-    it 'deduct can receive an amount to deduct' do
-      expect(subject).to respond_to(:deduct).with(1).argument
-    end
+  describe '#touch_out' do
+
     it 'deducts amount from balance' do
-      expect { subject.deduct 5 }.to change { subject.balance }.by -5
+      subject.top_up(10)
+      subject.touch_in
+      expect { subject.touch_out }.to change { subject.balance }.by(-Oystercard::FARE_AMOUNT)
     end
+
   end
 
 end
