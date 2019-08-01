@@ -1,8 +1,18 @@
 require "oystercard"
 
 describe Oystercard do
-  let(:entry_station) {double(:station_name)}
-  let(:exit_station) {double(:station_name)}
+  let(:entry_station) { double(:station_name) }
+  let(:exit_station) { double(:station_name) }
+  let(:JourneyClass) { double(
+    "Journey", :new => spy(
+      "journey",
+      :start => "start method",
+      :finish => "finish method",
+      :fare => 2
+      )
+    ) 
+  }
+  let(:subject) {Oystercard.new(JourneyClass)}
 
   context "a journey has been completed" do
 
@@ -24,14 +34,10 @@ describe Oystercard do
         expect(subject).not_to be_in_journey
       end
 
-      it 'raises error when touch out if journey hasnt started yet' do
-        expect{subject.touch_out(exit_station)}.to raise_error 'you havent started your journey yet, please touch in card to start journey'
-      end
-
       it 'saves station name' do
         subject.top_up(5)
         subject.touch_in(entry_station)
-        expect(subject.entry_station).to eq(entry_station)
+        expect(subject.current_journey).to have_received(:start)
       end
 
       it "charges you an penalty fare if you haven't touched out" do

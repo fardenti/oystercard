@@ -19,29 +19,46 @@ class Oystercard
   end
 
   def in_journey?
-   !!@current_journey.complete?
+   !!@current_journey
   end
 
   def touch_in(station)
-    fail "Your card balance is below £#{MIN_VALUE}, please top up" if @balance < MIN_VALUE
-    deduct(PENALTY_FARE) unless @current_journey.complete?
-    @journey_history << @current_journey unless @current_journey.complete?
-    @current_journey = journey_class.new
-    @current_journey.start(station)
-    
+    balance_check
+    touch_in_check
+    @current_journey = @journey_class.new
+    @current_journey.start(station) 
   end
   
   def touch_out(station)
-    fail 'you havent started your journey yet, please touch in card to start journey' unless in_journey?
-    deduct(FARE_AMOUNT)
-    @current_journey = {:entry => @entry_station, :exit => station}
+    touch_out_check
+    @current_journey.finish(station)
     @journey_history << @current_journey
-    @entry_station = nil
+    @current_journey = nil
   end
 
   private
   def deduct(amount)
     @balance -= amount
+  end
+
+  def touch_in_check
+    if @current_journey
+      deduct(PENALTY_FARE)
+      @journey_history << @current_journey
+    end
+  end
+
+  def touch_out_check
+    if !@current_journey
+      deduct(PENALTY_FARE)
+      @current_journey = @journey_class.new
+    else
+      deduct(@current_journey.fare)
+    end
+  end
+
+  def balance_check
+    fail "Your card balance is below £#{MIN_VALUE}, please top up" if @balance < MIN_VALUE
   end
 
 end
