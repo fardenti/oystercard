@@ -1,3 +1,5 @@
+require_relative './journey.rb'
+
 class Oystercard
 
   attr_reader :balance, :entry_station, :journey_history, :current_journey
@@ -5,9 +7,10 @@ class Oystercard
   MIN_VALUE = 1
   PENALTY_FARE = 8
 
-  def initialize
+  def initialize(journey_class = Journey)
     @balance = 0
     @journey_history = []
+    @journey_class = journey_class
   end
 
   def top_up(amount)
@@ -23,7 +26,7 @@ class Oystercard
     fail "Your card balance is below £#{MIN_VALUE}, please top up" if @balance < MIN_VALUE
     deduct(PENALTY_FARE) unless @current_journey.complete?
     @journey_history << @current_journey unless @current_journey.complete?
-    @current_journey = Journey.new
+    @current_journey = journey_class.new
     @current_journey.start(station)
     
   end
