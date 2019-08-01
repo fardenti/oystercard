@@ -19,18 +19,26 @@ describe Oystercard do
         subject.touch_in(entry_station)
         expect(subject).to be_in_journey
       end
+
       it 'when card touched out, journey ends' do
         expect(subject).not_to be_in_journey
       end
+
       it 'raises error when touch out if journey hasnt started yet' do
         expect{subject.touch_out(exit_station)}.to raise_error 'you havent started your journey yet, please touch in card to start journey'
       end
+
       it 'saves station name' do
         subject.top_up(5)
         subject.touch_in(entry_station)
         expect(subject.entry_station).to eq(entry_station)
       end
-    
+
+      it "charges you an penalty fare if you haven't touched out" do
+        subject.touch_in(entry_station)
+        expect{ subject.touch_in(entry_station) }.to change{ subject.balance }.by(-Oystercard::PENALTY_FARE) 
+      end
+        
     end
 
     describe '#top_up' do
@@ -86,7 +94,7 @@ describe Oystercard do
       end
 
     end
-    
+
     describe "#top_up" do
 
       it 'raises error if topping up results in exceeding the balance limit of £90' do

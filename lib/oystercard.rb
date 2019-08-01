@@ -3,7 +3,7 @@ class Oystercard
   attr_reader :balance, :entry_station, :journey_history, :current_journey
   MAX_VALUE = 90
   MIN_VALUE = 1
-  FARE_AMOUNT = 1
+  PENALTY_FARE = 8
 
   def initialize
     @balance = 0
@@ -16,12 +16,16 @@ class Oystercard
   end
 
   def in_journey?
-   !!@entry_station
+   !!@current_journey.complete?
   end
 
   def touch_in(station)
     fail "Your card balance is below £#{MIN_VALUE}, please top up" if @balance < MIN_VALUE
-    @entry_station = station
+    deduct(PENALTY_FARE) unless @current_journey.complete?
+    @journey_history << @current_journey unless @current_journey.complete?
+    @current_journey = Journey.new
+    @current_journey.start(station)
+    
   end
   
   def touch_out(station)
