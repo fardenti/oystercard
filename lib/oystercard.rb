@@ -9,7 +9,8 @@ class Oystercard
 
   def initialize(journey_class = Journey)
     @balance = 0
-    @journey_history = []
+    @journey_history = [] #array created to store journey history
+    @current_journey = nil
     @journey_class = journey_class
   end
 
@@ -19,7 +20,7 @@ class Oystercard
   end
 
   def in_journey?
-   !!@current_journey
+   !!@current_journey #returns true when journey has started
   end
 
   def touch_in(station)
@@ -32,28 +33,37 @@ class Oystercard
   def touch_out(station)
     touch_out_check
     @current_journey.finish(station)
-    @journey_history << @current_journey
-    @current_journey = nil
+    @journey_history << @current_journey #pushing the current journy thats completed to journey history array
+    @current_journey = nil #setting the current jounry back to nothing again
+    # p @journey_history
+    # p "-----------"
   end
 
+
+
   private
+
   def deduct(amount)
     @balance -= amount
   end
 
   def touch_in_check
-    if @current_journey
-      deduct(PENALTY_FARE)
+    if in_journey? == true
+      #fail "you touched in twice and now charged a penatly fare of #{PENALTY_FARE}"
+      deduct(PENALTY_FARE) 
       @journey_history << @current_journey
     end
   end
 
   def touch_out_check
-    if !@current_journey
+    if in_journey? == false
+      #fail "you didnt touch in at start of journey and now charged a penatly fare of #{PENALTY_FARE}"
       deduct(PENALTY_FARE)
+      puts "You touched out without starting a journey, card charged £#{PENALTY_FARE}"
       @current_journey = @journey_class.new
     else
       deduct(@current_journey.fare)
+      in_journey? == false #might not need this
     end
   end
 
